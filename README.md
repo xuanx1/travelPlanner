@@ -41,7 +41,9 @@ A web-based [visualization](https://xuanx1.github.io/travelPlanner/) tool for so
 1. Run one or more algorithms to find a route (e.g., run Nearest Neighbor, then run 2-Opt to improve)
 2. The milestone name is **automatically generated** based on your locations (updates as you add/remove points)
 3. Edit the name if desired, then click "SAVE MILESTONE" to save the route
-4. View all saved milestones at the bottom of the page
+4. View all saved milestones in two places:
+   - **In-app**: Bottom of the page in the "SAVED MILESTONES" panel
+   - **GitHub Pages**: View all saved milestones at milestones-data.json
 5. Each milestone shows:
    - Distance and point count
    - **All algorithms used in sequence** (e.g., "Nearest Neighbor → 2-Opt")

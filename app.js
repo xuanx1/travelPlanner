@@ -1304,6 +1304,8 @@ class TSPVisualizer {
     saveMilestonesToStorage() {
         try {
             localStorage.setItem('tsp_milestones', JSON.stringify(this.milestones));
+            // Auto-sync to JSON for GitHub Pages
+            this.saveMilestonesToJSON();
         } catch (e) {
             // Storage limit exceeded (QuotaExceededError)
             if (e.name === 'QuotaExceededError' || e.code === 22) {
@@ -1370,6 +1372,59 @@ class TSPVisualizer {
                 throw e;
             }
         }
+    }
+
+    saveMilestonesToJSON() {
+        // Auto-save milestones to JSON file for GitHub Pages display
+        const newMilestones = this.milestones.map(m => ({
+            id: m.id || `milestone-${Date.now()}-${Math.random()}`,
+            milestoneName: m.name,
+            bestDistance: m.bestDistance,
+            bestPath: m.bestPath,
+            algorithmSequence: m.algorithmSequence || [],
+            timestamp: m.date,
+            pointCount: m.bestPath ? m.bestPath.length : 0
+        }));
+
+        // Try to read existing data and merge
+        fetch('milestones-data.json')
+            .then(r => r.json())
+            .then(existingData => {
+                // Merge: keep existing data, add/update new milestones
+                const merged = Array.isArray(existingData) ? existingData : [];
+                
+                // Update existing or add new
+                newMilestones.forEach(newMilestone => {
+                    const existingIndex = merged.findIndex(m => m.timestamp === newMilestone.timestamp);
+                    if (existingIndex >= 0) {
+                        merged[existingIndex] = newMilestone;
+                    } else {
+                        merged.push(newMilestone);
+                    }
+                });
+                
+                this.downloadJSON(merged);
+            })
+            .catch(() => {
+                // If fetch fails, just save all current milestones
+                this.downloadJSON(newMilestones);
+            });
+    }
+
+    downloadJSON(dataToSave) {
+        // Auto-download JSON file with all milestone data
+        const jsonString = JSON.stringify(dataToSave, null, 2);
+        const blob = new Blob([jsonString], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'milestones-data.json';
+        // Auto-download silently
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
     }
 
     renderMilestones() {
@@ -1691,6 +1746,7 @@ class TSPVisualizer {
             setTimeout(() => this.clearStatus(), 3000);
         }, 800); // 800ms delay to show progress bar
     }
+
 }
 
 // Global variables
