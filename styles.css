@@ -1,0 +1,553 @@
+/* CSS Reset and Base Styles */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background-color: #f5f5f5;
+    color: #333;
+    line-height: 1.4;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Stats Bar */
+.stats-bar {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    flex-wrap: wrap;
+}
+
+.stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 120px;
+}
+
+.stat .label {
+    font-size: 0.7rem;
+    color: #666;
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+.stat .value {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #333;
+    margin-top: 2px;
+}
+
+/* Main Content Layout */
+.main-content {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 20px;
+    height: 600px;
+}
+
+/* Map Container */
+.map-container {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+#map {
+    width: 100%;
+    height: 100%;
+}
+
+/* Controls Panel */
+.controls {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    overflow-y: auto;
+}
+
+.control-section {
+    margin-bottom: 25px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.control-section:last-child {
+    border-bottom: none;
+}
+
+/* Header Section in Control Panel */
+.header-section {
+    text-align: center;
+}
+
+.header-section h1 {
+    font-size: 2rem;
+    font-weight: 300;
+    margin-bottom: 12px;
+    letter-spacing: 2px;
+    color: #333;
+}
+
+.header-section .subtitle {
+    font-size: 0.85rem;
+    color: #666;
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
+
+.header-section .hint {
+    font-size: 0.75rem;
+    color: #888;
+    font-style: italic;
+    line-height: 1.3;
+}
+
+.control-section h3 {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #666;
+    margin-bottom: 15px;
+    letter-spacing: 1px;
+}
+
+/* Control Groups */
+.control-group {
+    margin-bottom: 15px;
+}
+
+.control-group label {
+    display: block;
+    font-size: 0.7rem;
+    color: #666;
+    margin-bottom: 5px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
+/* Input Styles */
+input[type="range"] {
+    width: 100%;
+    height: 4px;
+    -webkit-appearance: none;
+    background: #ddd;
+    border-radius: 2px;
+    outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #007cba;
+    cursor: pointer;
+}
+
+input[type="range"]::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #007cba;
+    cursor: pointer;
+    border: none;
+}
+
+input[type="number"],
+input[type="text"] {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.8rem;
+}
+
+input[type="text"]::placeholder {
+    color: #999;
+}
+
+/* Checkbox Styles */
+.checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.checkbox-group label {
+    display: flex;
+    align-items: center;
+    font-size: 0.7rem;
+    color: #666;
+    cursor: pointer;
+}
+
+.checkbox-group input[type="checkbox"] {
+    margin-right: 8px;
+    width: 14px;
+    height: 14px;
+}
+
+/* Button Styles */
+button {
+    background: #007cba;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+button:hover {
+    background: #005a87;
+    transform: translateY(-1px);
+}
+
+button:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+}
+
+button:disabled:hover {
+    background: #ccc;
+    transform: none;
+}
+
+/* Icon Buttons */
+#clearPoints,
+#saveMilestone,
+#runAlgorithm,
+#pauseAlgorithm,
+#stopAlgorithm {
+    font-size: 1.2rem;
+    padding: 10px;
+    min-width: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#clearPoints {
+    width: 100%;
+    font-size: 1.4rem;
+    background: #dc3545;
+}
+
+#clearPoints:hover {
+    background: #c82333;
+}
+
+#saveMilestone {
+    width: 100%;
+    font-size: 1.4rem;
+    background: #28a745;
+    margin-top: 8px;
+}
+
+#saveMilestone:hover {
+    background: #218838;
+}
+
+/* Algorithm Buttons */
+.algorithm-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+.algorithm-btn {
+    background: #f8f9fa;
+    color: #333;
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+}
+
+.algorithm-btn:hover {
+    background: #e9ecef;
+    color: #333;
+}
+
+.algorithm-btn.active {
+    background: #007cba;
+    color: white;
+    border-color: #007cba;
+}
+
+/* Execution Controls */
+.execution-controls {
+    display: flex;
+    gap: 8px;
+}
+
+.execution-controls button {
+    flex: 1;
+    padding: 8px 10px;
+    font-size: 0.7rem;
+}
+
+/* Points Info */
+.points-info {
+    margin-top: 15px;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 4px;
+}
+
+.points-info p {
+    font-size: 0.7rem;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+.points-info p:last-child {
+    margin-bottom: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .main-content {
+        grid-template-columns: 1fr;
+        height: auto;
+    }
+    
+    .map-container {
+        height: 400px;
+    }
+    
+    .stats-bar {
+        gap: 15px;
+    }
+    
+    .stat {
+        min-width: 80px;
+    }
+    
+    .execution-controls {
+        flex-direction: column;
+    }
+}
+
+/* Leaflet Map Marker Styles */
+.custom-marker {
+    background: transparent;
+    border: none;
+}
+
+.marker-pin {
+    width: 16px;
+    height: 16px;
+    background-color: #ff4444;
+    border: 3px solid white;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+}
+
+.marker-pin:hover {
+    background-color: #ff6666;
+    transform: scale(1.2);
+}
+
+/* Ensure Leaflet controls are visible */
+.leaflet-control-zoom {
+    border: none !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
+}
+
+.leaflet-control-zoom a {
+    background-color: white !important;
+    color: #333 !important;
+}
+
+.leaflet-control-attribution {
+    font-size: 10px !important;
+    background-color: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* Search Results */
+.search-results {
+    margin-top: 8px;
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    display: none;
+}
+
+.search-results.active {
+    display: block;
+}
+
+.search-result-item {
+    padding: 8px 10px;
+    cursor: pointer;
+    border-bottom: 1px solid #eee;
+    font-size: 0.75rem;
+    transition: background-color 0.2s;
+}
+
+.search-result-item:last-child {
+    border-bottom: none;
+}
+
+.search-result-item:hover {
+    background-color: #f0f0f0;
+}
+
+.search-result-item .place-name {
+    font-weight: 500;
+    color: #333;
+    display: block;
+    margin-bottom: 2px;
+}
+
+.search-result-item .place-address {
+    color: #666;
+    font-size: 0.7rem;
+}
+
+/* Milestones Panel */
+.milestones-panel {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.milestones-panel h3 {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #666;
+    margin-bottom: 15px;
+    letter-spacing: 1px;
+}
+
+.milestones-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.no-milestones {
+    font-size: 0.75rem;
+    color: #888;
+    text-align: center;
+    padding: 20px;
+    font-style: italic;
+}
+
+.milestone-card {
+    background: #f8f9fa;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 12px;
+    position: relative;
+}
+
+.milestone-card.best-milestone {
+    background: #fff8e1;
+    border-color: #ffc107;
+    box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
+}
+
+.milestone-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.milestone-name {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: #333;
+}
+
+.milestone-actions {
+    display: flex;
+    gap: 5px;
+}
+
+.milestone-action-btn {
+    background: transparent;
+    color: #007cba;
+    padding: 4px 8px;
+    font-size: 0.7rem;
+    border: 1px solid #007cba;
+}
+
+.milestone-action-btn:hover {
+    background: #007cba;
+    color: white;
+}
+
+.milestone-action-btn.delete {
+    color: #dc3545;
+    border-color: #dc3545;
+}
+
+.milestone-action-btn.delete:hover {
+    background: #dc3545;
+    color: white;
+}
+
+.milestone-info {
+    font-size: 0.7rem;
+    color: #666;
+    margin-bottom: 4px;
+}
+
+.milestone-info strong {
+    color: #333;
+}
+
+.milestone-date {
+    font-size: 0.65rem;
+    color: #888;
+    margin-top: 6px;
+}
+
+.milestone-places {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #ddd;
+}
+
+.milestone-places-title {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #666;
+    margin-bottom: 4px;
+}
+
+.milestone-places-list {
+    font-size: 0.65rem;
+    color: #666;
+    line-height: 1.4;
+}

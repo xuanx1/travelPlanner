@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TSP Travel Planner</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" 
+          crossorigin=""/>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+            crossorigin=""></script>
+</head>
+<body>
+    <div class="container">
+        <div class="stats-bar">
+            <div class="stat">
+                <span class="label">CURRENT BEST:</span>
+                <span id="currentBest" class="value">- KM</span>
+            </div>
+            <div class="stat">
+                <span class="label">EVALUATING:</span>
+                <span id="evaluating" class="value">- KM</span>
+            </div>
+            <div class="stat">
+                <span class="label">RUNNING FOR:</span>
+                <span id="runningFor" class="value">0 S</span>
+            </div>
+            <div class="stat">
+                <span class="label">ALGORITHM:</span>
+                <span id="currentAlgorithm" class="value">None</span>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="map-container">
+                <div id="map"></div>
+            </div>
+            
+            <div class="controls">
+                <div class="control-section header-section">
+                    <h1>TSP VISUALIZER</h1>
+                    <p class="subtitle">Visualize algorithms for the traveling salesman problem. Use the controls below to plot points, choose an algorithm, and control execution.</p>
+                    <p class="hint">Hint: try a construction algorithm followed by an improvement algorithm</p>
+                </div>
+
+                <div class="control-section">
+                    <h3>CONTROLS</h3>
+                    <div class="checkbox-group">
+                        <label>
+                            <input type="checkbox" id="showBestPath" checked>
+                            SHOW BEST PATH
+                        </label>
+                        <label>
+                            <input type="checkbox" id="showEvaluatedPaths">
+                            SHOW EVALUATED PATHS
+                        </label>
+                        <label>
+                            <input type="checkbox" id="showEvaluatedSteps">
+                            SHOW EVALUATED STEPS
+                        </label>
+                    </div>
+                </div>
+
+                <div class="control-section">
+                    <h3>POINTS</h3>
+                    
+                    <div class="control-group">
+                        <label>SEARCH FOR PLACES</label>
+                        <input type="text" id="placeSearch" placeholder="Start typing to search...">
+                        <div id="searchResults" class="search-results"></div>
+                    </div>
+                    
+                    <button id="clearPoints" title="Clear All Points">🗑️</button>
+                    
+                    <div class="points-info">
+                        <p>POINTS: <span id="pointCount">0</span></p>
+                        <p>POSSIBLE PATHS: <span id="possiblePaths">0</span></p>
+                    </div>
+                </div>
+
+                <div class="control-section">
+                    <h3>ALGORITHMS</h3>
+                    <div class="algorithm-buttons">
+                        <button class="algorithm-btn" data-algorithm="nearestNeighbor">Nearest Neighbor</button>
+                        <button class="algorithm-btn" data-algorithm="convexHull">Convex Hull</button>
+                        <button class="algorithm-btn" data-algorithm="genetic">Genetic Algorithm</button>
+                        <button class="algorithm-btn" data-algorithm="twoOpt">2-Opt</button>
+                        <button class="algorithm-btn" data-algorithm="simulatedAnnealing">Simulated Annealing</button>
+                    </div>
+                    
+                    <div class="execution-controls">
+                        <button id="runAlgorithm" disabled title="Run Algorithm">▶️</button>
+                        <button id="pauseAlgorithm" disabled title="Pause">⏸️</button>
+                        <button id="stopAlgorithm" disabled title="Stop">⏹️</button>
+                    </div>
+                </div>
+
+                <div class="control-section">
+                    <h3>SAVE & EXPORT</h3>
+                    <div class="control-group">
+                        <label>TRIP NAME</label>
+                        <input type="text" id="milestoneName" placeholder="Add points to generate name...">
+                        <button id="saveMilestone" title="Save Trip">💾</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="milestones-panel">
+            <h3>SAVED MILESTONES</h3>
+            <div id="milestonesList" class="milestones-list">
+                <p class="no-milestones">No milestones saved yet. Complete a route and save it!</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="algorithms.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
