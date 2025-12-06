@@ -24,7 +24,6 @@ class TSPVisualizer {
         this.constructionCompleted = false; // Track if a construction algorithm has completed
         this.routingProfile = 'driving-car'; // Default routing profile
         
-        this.loadMilestones();
         this.initializeEventListeners();
         this.algorithms.setUpdateCallback(this.onAlgorithmUpdate.bind(this));
     }
@@ -1289,7 +1288,32 @@ class TSPVisualizer {
         setTimeout(() => this.clearStatus(), 3000);
     }
 
-    loadMilestones() {
+    async loadMilestones() {
+        // First, try to load from milestones-data.json (if it exists)
+        try {
+            const response = await fetch('milestones-data.json');
+            if (response.ok) {
+                const jsonData = await response.json();
+                if (Array.isArray(jsonData) && jsonData.length > 0) {
+                    // Convert JSON format to internal milestone format
+                    this.milestones = jsonData.map(m => ({
+                        id: m.id || `milestone-${Date.now()}-${Math.random()}`,
+                        name: m.milestoneName,
+                        distance: m.bestDistance,
+                        pointCount: m.pointCount,
+                        coordinates: m.bestPath || [],
+                        algorithms: m.algorithmSequence || [],
+                        date: m.timestamp,
+                        bestPath: m.bestPath || []
+                    }));
+                    return;
+                }
+            }
+        } catch (e) {
+            console.log('milestones-data.json not found or error loading, falling back to localStorage');
+        }
+        
+        // Fallback: Load from localStorage
         const stored = localStorage.getItem('tsp_milestones');
         if (stored) {
             try {
@@ -1756,6 +1780,7 @@ let tspVisualizer;
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('TSP Visualizer loaded. Initializing with OpenStreetMap...');
     tspVisualizer = new TSPVisualizer();
+    await tspVisualizer.loadMilestones();
     tspVisualizer.initMap();
     tspVisualizer.initPreviewMap();
     tspVisualizer.renderMilestones();

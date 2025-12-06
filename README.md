@@ -1,4 +1,4 @@
-# Tourist Attraction Router
+# TSP Itinerary Planner
 
 A web-based [visualization](https://xuanx1.github.io/travelPlanner/) tool for solving the Traveling Salesman Problem (TSP) using various algorithms, integrated with OpenStreetMap for realistic geographic visualization.
 
