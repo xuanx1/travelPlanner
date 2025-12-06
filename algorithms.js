@@ -465,16 +465,17 @@ class TSPAlgorithms {
                     this.bestDistance = currentDistance;
                     this.bestPath = [...currentPath];
                 }
+            }
 
-                if (this.onUpdate) {
-                    this.onUpdate({
-                        currentPath: [...currentPath],
-                        bestPath: [...this.bestPath],
-                        currentDistance: currentDistance,
-                        bestDistance: this.bestDistance,
-                        algorithm: this.currentAlgorithm
-                    });
-                }
+            // Update on every iteration to show explored paths
+            if (this.onUpdate) {
+                this.onUpdate({
+                    currentPath: [...currentPath],
+                    bestPath: [...this.bestPath],
+                    currentDistance: currentDistance,
+                    bestDistance: this.bestDistance,
+                    algorithm: this.currentAlgorithm
+                });
             }
 
             temperature *= coolingRate;

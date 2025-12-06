@@ -8,19 +8,23 @@ A web-based visualization tool for solving the Traveling Salesman Problem (TSP) 
 
 - **Interactive OpenStreetMap Integration**: Click to place points, drag to move them, right-click to delete
 - **Place Search**: Real-time search and add real locations by name using OpenStreetMap's geocoding
+- **Multiple Transportation Modes**: Choose routing profiles (Car, Bus/Truck, Cycling, Walking) for realistic route calculations
+- **Smart Route Optimization**: Straight-line display during algorithm execution, actual routed paths after completion
 - **Save & Compare Milestones**: Save your best routes with complete stats including coordinates, place names, and full algorithm history
 - **Algorithm Sequence Tracking**: Track all algorithms used to achieve the final route (e.g., Nearest Neighbor → 2-Opt)
+- **Algorithm Tooltips**: Hover over any algorithm to see how it works, its strengths, and weaknesses
 - **Multiple TSP Algorithms**:
   - Nearest Neighbor (Construction algorithm)
   - Convex Hull (Construction algorithm)  
   - Genetic Algorithm (Metaheuristic)
   - 2-Opt (Local improvement)
   - Simulated Annealing (Metaheuristic)
-- **Real-time Visualization**: Watch algorithms solve the problem step-by-step (100ms per iteration)
-- **Algorithm Controls**: Run, pause, and stop execution
+- **Real-time Visualization**: Watch algorithms solve the problem step-by-step with instant visual feedback
+- **Algorithm Controls**: Run construction algorithms, then refine with improvement algorithms
 - **Path Visualization Options**: Toggle best path and evaluated paths
 - **Responsive Design**: Works on desktop and mobile devices
 - **Statistics Display**: Current best distance, running time, and algorithm sequence info
+- **Milestone Preview**: Auto-load and preview the most efficient saved route on page load
 
 
 ## Usage
@@ -50,10 +54,16 @@ A web-based visualization tool for solving the Traveling Salesman Problem (TSP) 
 
 ### Running Algorithms
 1. Add at least 3 points to the map
-2. Select an algorithm from the list
-3. Adjust the delay slider to control visualization speed
-4. Click "RUN" to start the algorithm
-5. Use "PAUSE"/"RESUME" and "STOP" to control execution
+2. **Select a routing profile** from the ROUTING MEDIUM section (Car, Bus/Truck, Cycling, or Walking)
+3. Select an algorithm from the list
+4. **Hover over any algorithm** to see a detailed tooltip explaining:
+   - How the algorithm works
+   - Key strengths
+   - Known weaknesses
+5. Click the algorithm button to run it
+6. **Construction algorithms** create an initial solution
+7. **Refinement algorithms** improve upon the best existing solution
+8. Paths display as straight lines during execution, then convert to actual routed paths when complete
 
 ### Algorithm Recommendations
 - Start with **Nearest Neighbor** or **Convex Hull** for initial solutions
@@ -77,9 +87,9 @@ tsp/
 └── README.md          # This file
 ```
 
-## Technical Details
+## Features
 
-### Algorithms Implemented
+### Algorithms
 
 1. **Nearest Neighbor**: Greedy construction algorithm
 2. **Convex Hull**: Starts with convex hull then optimally inserts remaining points
@@ -87,10 +97,22 @@ tsp/
 4. **2-Opt**: Local search improvement algorithm
 5. **Simulated Annealing**: Probabilistic optimization technique
 
-### Algorithms
-Add new algorithms by extending the `TSPAlgorithms` class in `algorithms.js`. Implement the algorithm method and add UI controls in `index.html`.
+### Routing Profiles
+Select different transportation modes to calculate realistic routes:
+- **Car**: Standard driving routes optimized for cars
+- **Bus/Truck**: Larger vehicles with different route preferences
+- **Cycling**: Routes suitable for bicycles
+- **Walking**: Pedestrian-friendly routes
 
-- For best performance, limit points to under 20 for complex algorithms
-- The Genetic Algorithm is optimized for problems with 4-50 points
-- 2-Opt works well for local improvements on any size problem
-- Adjust the delay slider for faster execution on larger problems
+Routes are calculated using OSRM (Open Source Routing Machine) with automatic fallback to GraphHopper and Valhalla if the primary service is unavailable.
+
+### Milestone System
+- Automatically generated names based on your locations
+- Saves complete route information including:
+  - Total distance
+  - All points with coordinates and names
+  - Algorithm sequence used
+  - Timestamp
+- Best route marked with 🏆
+- Load, preview, delete, or download milestones as JSON
+- Data persists in browser localStorage

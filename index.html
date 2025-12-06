@@ -13,26 +13,37 @@
             crossorigin=""></script>
 </head>
 <body>
-    <div class="container">
+    <div class="status-bar" id="statusBar">
+        <div class="status-content">
+            <span id="statusText" class="status-text">Ready</span>
+            <div class="progress-bar" id="progressBar" style="display: none;"></div>
+        </div>
+    </div>
+    <div class="title-stats-wrapper">
+        <div class="title-section-outer">
+            <h1>Itinerary Planner</h1>
+        </div>
         <div class="stats-bar">
             <div class="stat">
-                <span class="label">CURRENT BEST:</span>
+                <span class="label">CURRENT BEST</span>
                 <span id="currentBest" class="value">- KM</span>
             </div>
             <div class="stat">
-                <span class="label">EVALUATING:</span>
+                <span class="label">EVALUATING</span>
                 <span id="evaluating" class="value">- KM</span>
             </div>
             <div class="stat">
-                <span class="label">RUNNING FOR:</span>
+                <span class="label">RUNNING FOR</span>
                 <span id="runningFor" class="value">0 S</span>
             </div>
             <div class="stat">
-                <span class="label">ALGORITHM:</span>
+                <span class="label">ALGORITHM</span>
                 <span id="currentAlgorithm" class="value">None</span>
             </div>
         </div>
+    </div>
 
+    <div class="container">
         <div class="main-content">
             <div class="map-container">
                 <div id="map"></div>
@@ -40,27 +51,13 @@
             
             <div class="controls">
                 <div class="control-section header-section">
-                    <h1>TSP VISUALIZER</h1>
-                    <p class="subtitle">Visualize algorithms for the traveling salesman problem. Use the controls below to plot points, choose an algorithm, and control execution.</p>
-                    <p class="hint">Hint: try a construction algorithm followed by an improvement algorithm</p>
-                </div>
-
-                <div class="control-section">
-                    <h3>CONTROLS</h3>
-                    <div class="checkbox-group">
-                        <label>
-                            <input type="checkbox" id="showBestPath" checked>
-                            SHOW BEST PATH
-                        </label>
-                        <label>
-                            <input type="checkbox" id="showEvaluatedPaths">
-                            SHOW EVALUATED PATHS
-                        </label>
-                        <label>
-                            <input type="checkbox" id="showEvaluatedSteps">
-                            SHOW EVALUATED STEPS
-                        </label>
-                    </div>
+                    <ol class="subtitle-list">
+                        <li data-number="1" data-step="plot-points" class="step-item">Plot points</li>
+                        <li data-number="2" data-step="choose-algorithm" class="step-item">Choose an algorithm</li>
+                        <li data-number="3" data-step="run-construction" class="step-item">Run a construction algorithm</li>
+                        <li data-number="4" data-step="run-refinement" class="step-item">Run a refinement algorithm</li>
+                        <li data-number="5" data-step="visualize-tsp" class="step-item">Visualize the traveling salesman</li>
+                    </ol>
                 </div>
 
                 <div class="control-section">
@@ -72,28 +69,54 @@
                         <div id="searchResults" class="search-results"></div>
                     </div>
                     
-                    <button id="clearPoints" title="Clear All Points">🗑️</button>
-                    
-                    <div class="points-info">
-                        <p>POINTS: <span id="pointCount">0</span></p>
-                        <p>POSSIBLE PATHS: <span id="possiblePaths">0</span></p>
+                    <div class="points-container">
+                        <div class="points-info">
+                            <p>POINTS: <span id="pointCount">0</span></p>
+                            <p>POSSIBLE PATHS: <span id="possiblePaths">0</span></p>
+                        </div>
+                        <button id="clearPoints" title="Clear All Points">🗑️</button>
+                    </div>
+                </div>
+
+                <div class="control-section">
+                    <h3>ROUTING MEDIUM</h3>
+                    <div class="routing-buttons">
+                        <button class="routing-btn active" data-profile="driving-car">🚗 Car</button>
+                        <button class="routing-btn" data-profile="driving-hgv">🚌 Bus</button>
+                        <button class="routing-btn" data-profile="cycling-regular">🚴 Cycling</button>
+                        <button class="routing-btn" data-profile="foot-walking">🚶 Walking</button>
                     </div>
                 </div>
 
                 <div class="control-section">
                     <h3>ALGORITHMS</h3>
                     <div class="algorithm-buttons">
-                        <button class="algorithm-btn" data-algorithm="nearestNeighbor">Nearest Neighbor</button>
-                        <button class="algorithm-btn" data-algorithm="convexHull">Convex Hull</button>
-                        <button class="algorithm-btn" data-algorithm="genetic">Genetic Algorithm</button>
-                        <button class="algorithm-btn" data-algorithm="twoOpt">2-Opt</button>
-                        <button class="algorithm-btn" data-algorithm="simulatedAnnealing">Simulated Annealing</button>
-                    </div>
-                    
-                    <div class="execution-controls">
-                        <button id="runAlgorithm" disabled title="Run Algorithm">▶️</button>
-                        <button id="pauseAlgorithm" disabled title="Pause">⏸️</button>
-                        <button id="stopAlgorithm" disabled title="Stop">⏹️</button>
+                        <div class="algorithm-group">
+                            <h4>Construction</h4>
+                            <button class="algorithm-btn" data-algorithm="nearestNeighbor" data-tooltip-label="Nearest Neighbor" data-tooltip-desc="Starts from a point and repeatedly visits the nearest unvisited point." data-tooltip-strengths="Quick, good for small datasets" data-tooltip-weaknesses="Often suboptimal, greedy approach">
+                                <span class="algorithm-name">Nearest Neighbor</span>
+                                <span class="algorithm-play">▶️</span>
+                            </button>
+                            <button class="algorithm-btn" data-algorithm="convexHull" data-tooltip-label="Convex Hull" data-tooltip-desc="Finds the outer boundary of all points, then fills in interior points optimally." data-tooltip-strengths="Better than nearest neighbor, visually elegant" data-tooltip-weaknesses="Can miss good interior shortcuts">
+                                <span class="algorithm-name">Convex Hull</span>
+                                <span class="algorithm-play">▶️</span>
+                            </button>
+                        </div>
+                        <div class="algorithm-group">
+                            <h4>Refinement</h4>
+                            <button class="algorithm-btn" data-algorithm="genetic" data-tooltip-label="Genetic Algorithm" data-tooltip-desc="Evolves a population of solutions through selection, crossover, and mutation." data-tooltip-strengths="Can escape local optima, finds very good solutions" data-tooltip-weaknesses="Slow, unpredictable quality">
+                                <span class="algorithm-name">Genetic Algorithm</span>
+                                <span class="algorithm-play">▶️</span>
+                            </button>
+                            <button class="algorithm-btn" data-algorithm="twoOpt" data-tooltip-label="2-Opt" data-tooltip-desc="Iteratively removes crossing edges and reconnects them without crossings." data-tooltip-strengths="Simple, fast, very effective for TSP" data-tooltip-weaknesses="Stops at local optima">
+                                <span class="algorithm-name">2-Opt</span>
+                                <span class="algorithm-play">▶️</span>
+                            </button>
+                            <button class="algorithm-btn" data-algorithm="simulatedAnnealing" data-tooltip-label="Simulated Annealing" data-tooltip-desc="Probabilistically accepts worse solutions early, gradually favoring better ones." data-tooltip-strengths="Can escape local optima, balances exploration and exploitation" data-tooltip-weaknesses="Slower than 2-Opt">
+                                <span class="algorithm-name">Simulated Annealing</span>
+                                <span class="algorithm-play">▶️</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -101,17 +124,35 @@
                     <h3>SAVE & EXPORT</h3>
                     <div class="control-group">
                         <label>TRIP NAME</label>
-                        <input type="text" id="milestoneName" placeholder="Add points to generate name...">
-                        <button id="saveMilestone" title="Save Trip">💾</button>
+                        <div class="milestone-input-group">
+                            <input type="text" id="milestoneName" placeholder="Add points to generate name...">
+                            <button id="saveMilestone" title="Save Trip">💾</button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="milestones-panel">
-            <h3>SAVED MILESTONES</h3>
-            <div id="milestonesList" class="milestones-list">
-                <p class="no-milestones">No milestones saved yet. Complete a route and save it!</p>
+        <div class="milestones-preview-wrapper">
+            <div class="milestones-panel">
+                <h3>SAVED MILESTONES</h3>
+                <div id="milestonesList" class="milestones-list">
+                    <p class="no-milestones">No milestones saved yet. Complete a route and save it!</p>
+                </div>
+            </div>
+
+            <div class="milestone-preview-panel">
+                <h3>MILESTONE PREVIEW</h3>
+                <div id="previewMapContainer" class="preview-map-container">
+                    <div id="previewMap"></div>
+                </div>
+                <div id="previewInfo" class="preview-info" style="display: none;">
+                    <div class="preview-header">
+                        <span id="previewName"></span>
+                        <button id="closePreview" title="Close Preview">✕</button>
+                    </div>
+                    <div id="previewStats" class="preview-stats"></div>
+                </div>
             </div>
         </div>
     </div>
