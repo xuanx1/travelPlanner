@@ -1,4 +1,4 @@
-# TSP Visualizer with OpenStreetMap
+# Attractions Router
 
 A web-based visualization tool for solving the Traveling Salesman Problem (TSP) using various algorithms, integrated with OpenStreetMap for realistic geographic visualization.
 
