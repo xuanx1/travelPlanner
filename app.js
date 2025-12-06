@@ -1283,9 +1283,9 @@ class TSPVisualizer {
         // Clear input
         document.getElementById('milestoneName').value = '';
         
-        // Status message
-        this.setStatus(`Awesome! Saved your trip "${name}" 🎉`, false);
-        setTimeout(() => this.clearStatus(), 3000);
+        // Status message with instructions
+        this.setStatus(`✅ Saved "${name}" locally. Downloaded JSON file - copy it to replace milestones-data.json to update GitHub Pages 📥`, false);
+        setTimeout(() => this.clearStatus(), 5000);
     }
 
     async loadMilestones() {
@@ -1298,19 +1298,47 @@ class TSPVisualizer {
                     // Convert JSON format to internal milestone format
                     this.milestones = jsonData.map(m => ({
                         id: m.id || `milestone-${Date.now()}-${Math.random()}`,
-                        name: m.milestoneName,
-                        distance: m.bestDistance,
-                        pointCount: m.pointCount,
-                        coordinates: m.bestPath || [],
-                        algorithms: m.algorithmSequence || [],
-                        date: m.timestamp,
-                        bestPath: m.bestPath || []
+                        name: m.name || m.milestoneName,
+                        distance: m.distance || m.bestDistance,
+                        pointCount: m.pointCount || (m.points ? m.points.length : m.coordinates ? m.coordinates.length : 0),
+                        // Use coordinates array (has names) if available, otherwise use points
+                        coordinates: m.coordinates || m.points || m.bestPath || [],
+                        algorithms: m.algorithms || m.algorithmSequence || [],
+                        date: m.date || m.timestamp,
+                        bestPath: m.path || m.bestPath || []
                     }));
+                    console.log('✅ Loaded milestones from JSON:', this.milestones.length);
                     return;
                 }
             }
         } catch (e) {
-            console.log('milestones-data.json not found or error loading, falling back to localStorage');
+            console.log('⚠️ milestones-data.json fetch error:', e.message);
+            // If fetch fails, try XMLHttpRequest as fallback
+            try {
+                const xhr = new XMLHttpRequest();
+                xhr.open('GET', 'milestones-data.json', false); // synchronous
+                xhr.send();
+                if (xhr.status === 200) {
+                    const jsonData = JSON.parse(xhr.responseText);
+                    if (Array.isArray(jsonData) && jsonData.length > 0) {
+                        this.milestones = jsonData.map(m => ({
+                            id: m.id || `milestone-${Date.now()}-${Math.random()}`,
+                            name: m.name || m.milestoneName,
+                            distance: m.distance || m.bestDistance,
+                            pointCount: m.pointCount || (m.points ? m.points.length : m.coordinates ? m.coordinates.length : 0),
+                            // Use coordinates array (has names) if available, otherwise use points
+                            coordinates: m.coordinates || m.points || m.bestPath || [],
+                            algorithms: m.algorithms || m.algorithmSequence || [],
+                            date: m.date || m.timestamp,
+                            bestPath: m.path || m.bestPath || []
+                        }));
+                        console.log('✅ Loaded milestones from JSON (XMLHttpRequest):', this.milestones.length);
+                        return;
+                    }
+                }
+            } catch (e2) {
+                console.log('⚠️ XMLHttpRequest also failed:', e2.message);
+            }
         }
         
         // Fallback: Load from localStorage
@@ -1318,10 +1346,14 @@ class TSPVisualizer {
         if (stored) {
             try {
                 this.milestones = JSON.parse(stored);
+                console.log('✅ Loaded milestones from localStorage:', this.milestones.length);
             } catch (e) {
-                console.error('Error loading milestones:', e);
+                console.error('❌ Error loading milestones from localStorage:', e);
                 this.milestones = [];
             }
+        } else {
+            console.log('⚠️ No milestones found in localStorage');
+            this.milestones = [];
         }
     }
 
@@ -1399,51 +1431,102 @@ class TSPVisualizer {
     }
 
     saveMilestonesToJSON() {
-        // Auto-save milestones to JSON file for GitHub Pages display
-        const newMilestones = this.milestones.map(m => ({
-            id: m.id || `milestone-${Date.now()}-${Math.random()}`,
-            milestoneName: m.name,
-            bestDistance: m.bestDistance,
-            bestPath: m.bestPath,
-            algorithmSequence: m.algorithmSequence || [],
-            timestamp: m.date,
-            pointCount: m.bestPath ? m.bestPath.length : 0
-        }));
+        // Auto-merge the NEW milestone into existing milestones-data.json
+        if (this.milestones.length === 0) return;
+        
+        const lastMilestone = this.milestones[this.milestones.length - 1];
+        const newMilestoneData = {
+            id: lastMilestone.id || `milestone-${Date.now()}-${Math.random()}`,
+            name: lastMilestone.name,
+            date: lastMilestone.date,
+            distance: lastMilestone.distance,
+            algorithms: lastMilestone.algorithms || [],
+            pointCount: lastMilestone.pointCount,
+            points: lastMilestone.points || [],
+            path: lastMilestone.bestPath || lastMilestone.path || [],
+            coordinates: lastMilestone.coordinates || []
+        };
 
         // Try to read existing data and merge
         fetch('milestones-data.json')
             .then(r => r.json())
             .then(existingData => {
-                // Merge: keep existing data, add/update new milestones
+                // Merge: keep existing data, add new milestone
                 const merged = Array.isArray(existingData) ? existingData : [];
                 
-                // Update existing or add new
-                newMilestones.forEach(newMilestone => {
-                    const existingIndex = merged.findIndex(m => m.timestamp === newMilestone.timestamp);
-                    if (existingIndex >= 0) {
-                        merged[existingIndex] = newMilestone;
-                    } else {
-                        merged.push(newMilestone);
-                    }
-                });
+                // Check if this milestone already exists (by id)
+                const existingIndex = merged.findIndex(m => m.id === newMilestoneData.id);
+                if (existingIndex >= 0) {
+                    merged[existingIndex] = newMilestoneData;
+                } else {
+                    merged.push(newMilestoneData);
+                }
                 
-                this.downloadJSON(merged);
+                // Auto-save merged data
+                this.autoSaveMergedJSON(merged, lastMilestone);
             })
             .catch(() => {
-                // If fetch fails, just save all current milestones
-                this.downloadJSON(newMilestones);
+                // If fetch fails, try to save just new milestone
+                this.autoSaveMergedJSON([newMilestoneData], lastMilestone);
             });
     }
 
-    downloadJSON(dataToSave) {
-        // Auto-download JSON file with all milestone data
+    async autoSaveMergedJSON(mergedData, lastMilestone) {
+        try {
+            // Try modern File System Access API (Chrome, Edge, Firefox)
+            if (window.showSaveFilePicker) {
+                const handle = await window.showSaveFilePicker({
+                    suggestedName: 'milestones-data.json',
+                    types: [{ description: 'JSON', accept: { 'application/json': ['.json'] } }]
+                });
+                const writable = await handle.createWritable();
+                await writable.write(JSON.stringify(mergedData, null, 2));
+                await writable.close();
+                console.log('✅ Auto-saved merged milestones to milestones-data.json');
+            } else {
+                // Fallback: auto-download with proper filename
+                const jsonString = JSON.stringify(mergedData, null, 2);
+                const blob = new Blob([jsonString], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                
+                // Format: trip_name_YYYY-MM-DD_HH-MM-SS.json
+                const savedDate = new Date(lastMilestone.date);
+                const dateStr = savedDate.toISOString().replace(/[:.]/g, '-').split('T')[0]; // YYYY-MM-DD
+                const timeStr = savedDate.toISOString().split('T')[1].split('.')[0].replace(/:/g, '-'); // HH-MM-SS
+                link.download = `${lastMilestone.name.replace(/\s+/g, '_')}_${dateStr}_${timeStr}.json`;
+                
+                link.style.display = 'none';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+                
+                console.log('⬇️ Downloaded milestones as', link.download);
+            }
+        } catch (err) {
+            console.log('⚠️ Could not auto-save to file:', err.message);
+        }
+    }
+
+    downloadJSON(dataToSave, milestone) {
+        // Fallback download method (called from other places if needed)
         const jsonString = JSON.stringify(dataToSave, null, 2);
         const blob = new Blob([jsonString], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = 'milestones-data.json';
-        // Auto-download silently
+        
+        if (milestone) {
+            const savedDate = new Date(milestone.date);
+            const dateStr = savedDate.toISOString().replace(/[:.]/g, '-').split('T')[0]; // YYYY-MM-DD
+            const timeStr = savedDate.toISOString().split('T')[1].split('.')[0].replace(/:/g, '-'); // HH-MM-SS
+            link.download = `${milestone.name.replace(/\s+/g, '_')}_${dateStr}_${timeStr}.json`;
+        } else {
+            link.download = 'milestones-data.json';
+        }
+        
         link.style.display = 'none';
         document.body.appendChild(link);
         link.click();
@@ -1482,7 +1565,7 @@ class TSPVisualizer {
             
             // Build coordinates list with numbered circles
             const coordinatesList = (milestone.coordinates || []).map((coord, index) => 
-                `<li class="milestone-place-item"><span class="milestone-place-number">${index + 1}</span><span class="milestone-place-name">${coord.name}</span></li>`
+                `<li class="milestone-place-item"><span class="milestone-place-number">${index + 1}</span><span class="milestone-place-name">${coord.name || `Point ${index + 1}`}</span></li>`
             ).join('');
 
             return `
@@ -1556,7 +1639,8 @@ class TSPVisualizer {
         this.previewMarkers = [];
 
         // Add markers for each point
-        if (milestone.points && milestone.points.length > 0) {
+        const pointsToDisplay = milestone.points || milestone.coordinates || [];
+        if (pointsToDisplay && pointsToDisplay.length > 0) {
             const customIcon = L.divIcon({
                 className: 'custom-marker',
                 html: '<div class="marker-pin"></div>',
@@ -1564,17 +1648,19 @@ class TSPVisualizer {
                 iconAnchor: [15, 15]
             });
 
-            milestone.points.forEach((point, index) => {
-                const marker = L.marker([point.lat, point.lng], {
+            pointsToDisplay.forEach((point, index) => {
+                // Ensure lat/lng are numbers (JSON might have strings)
+                const lat = parseFloat(point.lat);
+                const lng = parseFloat(point.lng);
+                
+                const marker = L.marker([lat, lng], {
                     icon: customIcon
                 }).addTo(this.previewMap);
                 
-                // Add tooltip with place name if available
-                if (milestone.coordinates && milestone.coordinates[index]) {
-                    const placeName = milestone.coordinates[index].name;
-                    const tooltip = `<div class="tooltip-content"><div class="tooltip-label">PLACE</div><div class="tooltip-value">${placeName}</div><div class="tooltip-coords"><div class="tooltip-coord-item"><span class="tooltip-coord-label">LATITUDE</span><span class="tooltip-coord-value">${point.lat.toFixed(4)}</span></div><div class="tooltip-coord-item"><span class="tooltip-coord-label">LONGITUDE</span><span class="tooltip-coord-value">${point.lng.toFixed(4)}</span></div></div></div>`;
-                    marker.bindTooltip(tooltip, { permanent: false, direction: 'top' });
-                }
+                // Add tooltip with place name
+                const placeName = point.name || (milestone.coordinates && milestone.coordinates[index] ? milestone.coordinates[index].name : `Point ${index + 1}`);
+                const tooltip = `<div class="tooltip-content"><div class="tooltip-label">PLACE</div><div class="tooltip-value">${placeName}</div><div class="tooltip-coords"><div class="tooltip-coord-item"><span class="tooltip-coord-label">LATITUDE</span><span class="tooltip-coord-value">${lat.toFixed(4)}</span></div><div class="tooltip-coord-item"><span class="tooltip-coord-label">LONGITUDE</span><span class="tooltip-coord-value">${lng.toFixed(4)}</span></div></div></div>`;
+                marker.bindTooltip(tooltip, { permanent: false, direction: 'top' });
                 
                 this.previewMarkers.push(marker);
             });
@@ -1583,27 +1669,27 @@ class TSPVisualizer {
         // Draw the saved paths on preview map
         const bestPath = milestone.bestPath || milestone.path;
         
-        // Draw best path
+        // Draw best path - simple straight line connecting the route
         if (bestPath && bestPath.length > 0) {
             try {
-                // Check if bestPath is a simple list of points (needs routing) or already routed coordinates
-                const isAlreadyRouted = bestPath.length > milestone.points.length * 2;
+                // Draw initial straight line polyline
+                console.log('Drawing initial straight path with', bestPath.length, 'points');
+                this.previewBestPathPolyline = this.drawDirectPathOnPreview(bestPath, '#28a745', 4, false);
                 
-                if (isAlreadyRouted && bestPath[0].lat !== undefined) {
-                    // It's already routed coordinates with many intermediate points
-                    this.previewBestPathPolyline = this.drawDirectPathOnPreview(bestPath, '#28a745', 4, false);
-                } else {
-                    // It's a simple point list or old format - need to route it
-                    const routedCoordinates = await this.getRoutedPath(bestPath);
-                    if (routedCoordinates && routedCoordinates.length > 0) {
-                        this.previewBestPathPolyline = this.drawDirectPathOnPreview(routedCoordinates, '#28a745', 4, false);
-                    } else {
-                        // Fallback to straight lines if routing fails
-                        this.previewBestPathPolyline = this.drawDirectPathOnPreview(bestPath, '#28a745', 4, false);
-                    }
-                }
+                // Then fetch and replace with actual routed path
+                this.updatePreviewWithActualRoute(bestPath);
             } catch (err) {
-                console.error(err);
+                console.error('Error drawing best path:', err);
+            }
+        } else {
+            // Fallback: connect all coordinates in order if no explicit path
+            const pointsToConnect = milestone.points || milestone.coordinates || [];
+            if (pointsToConnect.length > 1) {
+                console.log('No explicit path found, connecting all', pointsToConnect.length, 'points in order');
+                this.previewBestPathPolyline = this.drawDirectPathOnPreview(pointsToConnect, '#28a745', 4, false);
+                
+                // Fetch actual route for these points
+                this.updatePreviewWithActualRoute(pointsToConnect);
             }
         }
         
@@ -1667,8 +1753,9 @@ class TSPVisualizer {
         // Invalidate map size and fit bounds after paths are drawn and DOM is fully settled
         await new Promise(resolve => setTimeout(resolve, 300));
         this.previewMap.invalidateSize();
-        if (milestone.points.length > 0) {
-            const bounds = L.latLngBounds(milestone.points.map(p => [p.lat, p.lng]));
+        const pointsForBounds = milestone.points || milestone.coordinates || [];
+        if (pointsForBounds.length > 0) {
+            const bounds = L.latLngBounds(pointsForBounds.map(p => [parseFloat(p.lat), parseFloat(p.lng)]));
             this.previewMap.fitBounds(bounds, { padding: [50, 50] });
         }
     }
@@ -1704,7 +1791,12 @@ class TSPVisualizer {
         if (!routedCoordinates || routedCoordinates.length < 2) return null;
 
         try {
-            const polyline = L.polyline(routedCoordinates, {
+            // Convert to [lat, lng] array format if needed
+            const latlngs = routedCoordinates.map(coord => 
+                Array.isArray(coord) ? coord : [coord.lat, coord.lng]
+            );
+            
+            const polyline = L.polyline(latlngs, {
                 color: color,
                 weight: strokeWeight,
                 opacity: 1.0
@@ -1718,6 +1810,27 @@ class TSPVisualizer {
         } catch (error) {
             console.error('Error drawing direct path on preview:', error);
             return null;
+        }
+    }
+
+    async updatePreviewWithActualRoute(pathPoints) {
+        // Fetch actual routed path and replace the straight line visualization
+        if (!pathPoints || pathPoints.length < 2) return;
+        
+        try {
+            const routedCoords = await this.getRoutedPath(pathPoints);
+            if (routedCoords && routedCoords.length > pathPoints.length) {
+                // Remove the old straight line
+                if (this.previewBestPathPolyline) {
+                    this.previewMap.removeLayer(this.previewBestPathPolyline);
+                }
+                
+                // Draw the new routed path
+                this.previewBestPathPolyline = this.drawDirectPathOnPreview(routedCoords, '#28a745', 4, false);
+                console.log('✅ Updated preview with actual routed path');
+            }
+        } catch (err) {
+            console.log('⚠️ Could not fetch actual route, keeping straight line visualization:', err.message);
         }
     }
 
