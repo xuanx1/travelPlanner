@@ -1114,7 +1114,7 @@ class TSPVisualizer {
                 suggestedName = `${cities.join(' - ')} Tour`;
             } else {
                 // Many cities - use country
-                suggestedName = `${countries[0]} Tour (${cities.length} cities)`;
+                suggestedName = `${countries[0]} Tour (${cities.length} Places)`;
             }
         } else if (countries.length <= 3) {
             // Few countries - list them
