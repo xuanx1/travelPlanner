@@ -2,7 +2,7 @@
 
 A web-based [visualization](https://xuanx1.github.io/travelPlanner/) tool for solving the Traveling Salesman Problem (TSP) using various algorithms, integrated with OpenStreetMap for realistic geographic visualization.
 
-![TSP Visualizer Screenshot]()
+![Screenshot 2025-12-06 180856](https://github.com/user-attachments/assets/d03a61ca-a373-4b9f-aafb-49697e68b3d4)
 
 ## Features
 
